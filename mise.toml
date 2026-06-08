@@ -1,10 +1,10 @@
 #:schema https://mise.jdx.dev/schema/mise.json
-# .github-example — sandbox CONSUMER of joeblew999/.github.
+# .github-example — a MINIMAL, canonical consumer of joeblew999/.github.
 #
-# Consumes .github at `?ref=main` — UNVERSIONED (rolling latest, NOT a pinned
-# tag). So you validate the newest .github with no release/tag cycle: push
-# .github main, then run a task here (local) AND let CI run it (the proper
-# reusable workflow). Real repos pin `?ref=vX`; this one tracks `main` to test it.
+# It only WIRES UP .github; it invents nothing. Tasks come from the includes,
+# skills come from the .github marketplace — .github is the single source of
+# truth. Pinned to `main` (rolling/unversioned) so it validates the latest
+# .github with no release; real repos pin a tag (`?ref=vX`).
 
 [settings]
 experimental = true
@@ -13,32 +13,8 @@ experimental = true
 includes = [
   "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=main",
   "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/release.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/cliff.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/docker.toml?ref=main",
 ]
 
 [tools]
-# Repo-specific only — global tools come from `mise run mise:global`.
-
-# The reusable CI workflow runs `mise run ci` (its default task). Here that
-# exercises the shared .github tasks as a real consumer would.
-[tasks.ci]
-description = "Validate the shared .github tasks work as a consumer"
-depends = ["demo:pack"]
-run = '''
-#!/usr/bin/env nu
-print "✓ .github@main validated as a consumer (release:pack ran)"
-'''
-
-# Make a throwaway staging dir + run the shared release:pack against it.
-[tasks."demo:pack"]
-description = "Exercise the shared release:pack end-to-end"
-run = '''
-#!/usr/bin/env nu
-rm -rf target/dist
-mkdir target/dist/demo_linux_amd64
-"demo binary" | save -f target/dist/demo_linux_amd64/demo
-^mise run release:pack -- --dir target/dist
-print "→ archives:"; for a in (glob target/dist/*.tar.gz) { print $"  ($a)" }
-'''
+# Repo-specific tools only — global tools come from `mise run mise:global`.
+# (Rust, if any, is pinned in rust-toolchain.toml — never here.)

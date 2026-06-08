@@ -1,6 +1,5 @@
-# mise CI — the proper, shared reusable workflow (the only kind of CI in the fleet).
-# Validates joeblew999/.github @main (unversioned/rolling) as a consumer: runs
-# `mise run ci`, which exercises the shared tasks. Quick: one OS, no Rust build.
+# mise CI — the shared reusable workflow (the fleet's only CI mechanism).
+# Runs ONE shared task from .github; invents nothing. ubuntu-only, no build = quick.
 name: mise CI
 
 on:
@@ -16,6 +15,6 @@ jobs:
   ci:
     uses: joeblew999/.github/.github/workflows/reusable-mise-ci.yml@main
     with:
-      task: ci
+      task: ci:check-global   # a SHARED guard task — needs no repo code
       os-matrix: '["ubuntu-latest"]'
       sccache: false

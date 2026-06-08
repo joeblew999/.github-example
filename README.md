@@ -1,44 +1,35 @@
 # .github-example
 
-> 🔗 **The lib this validates:** [joeblew999/.github](https://github.com/joeblew999/.github)
-> — the shared mise task library + Claude marketplace. This repo only exists to
-> test changes to it.
+> 🔗 **The lib this demonstrates:** [joeblew999/.github](https://github.com/joeblew999/.github)
 
-Sandbox consumer of [`joeblew999/.github`](https://github.com/joeblew999/.github),
-wired to **`?ref=main`** — UNVERSIONED (rolling latest, no pinned tag). The
-validation step before any release: prove a `.github` change works as a real
-consumer, on `main`, before you cut a version.
+The **canonical minimal consumer** of `joeblew999/.github`. It shows the proper
+wiring and *nothing else* — tasks come from the includes, skills from the
+marketplace, CI from the reusable workflow. `.github` is the single source of
+truth; this repo invents nothing.
 
-## Order of operations (READ FIRST)
+Pinned to `main` (rolling/unversioned), so it also doubles as the live validation
+of the latest `.github`. Real repos pin a tag (`?ref=vX` / `@vX`).
 
-This repo is **step 2** of the .github dev cycle — always in this order:
+## How a consumer uses .github — IN THIS ORDER
 
-1. **Edit + push** `.github` `main` (a task, the `fleet` skill, or a workflow). No tag.
-2. **Validate here — local AND CI** (you are here), against `.github@main`:
-   - **local:** `mise run ci` (or any task). Clear mise's git-include cache first
-     so it pulls the new `main`.
-   - **CI:** `.github/workflows/mise.yaml` runs the shared
-     `reusable-mise-ci.yml@main` — the same task on a clean runner. Works on a
-     fresh machine, not just yours.
-   Both green before moving on. **No release/tag while iterating.**
-3. **Release** `.github` once it's green: `mise run release:github -- vX.Y.Z`.
-4. **Consumers adopt** by bumping their `?ref=` / `@ref` / plugin version.
+1. **Skills + conventions first** — `claude plugin marketplace add joeblew999/.github`,
+   then install `fleet`. (Or read `.github`'s AGENTS.md.) Now your agent knows the rules.
+2. **Add a `CLAUDE.md`** that points at `.github`'s AGENTS.md (see this repo's `CLAUDE.md`).
+3. **Wire mise tasks** — in `mise.toml`, `[task_config].includes` the namespaces you
+   need, pinned `?ref=vX` (this example uses `main`). One `git::` URL per namespace.
+4. **Global tools** — `mise run mise:global` (once per machine).
+5. **Rust?** — pin it in `rust-toolchain.toml` (rustup), **never** in mise.
+6. **Wire CI** — add `.github/workflows/mise.yaml` → `uses: …/reusable-mise-ci.yml@vX`
+   with `{ task: <your task> }`. The fleet's only CI mechanism.
 
-## How it's wired (the proper, by-reference way)
+Then `mise run <task>` works locally and CI runs the same task.
 
-- **tasks** — `mise.toml` `[task_config].includes` pull `.github` tasks at
-  `?ref=main` (not a local path — so CI resolves them on a clean runner).
-- **CI** — `.github/workflows/mise.yaml` → `uses: …/reusable-mise-ci.yml@main`
-  with `task: ci`. The fleet's one CI mechanism; no bespoke workflow.
-- **skills** — `claude plugin marketplace add joeblew999/.github` (use the repo
-  at `main` for the rolling marketplace).
+## What's in this repo (all a consumer needs)
 
-## Use
+| File | Step | Purpose |
+|---|---|---|
+| `CLAUDE.md` | 2 | points agents at `.github`'s AGENTS.md |
+| `mise.toml` | 3 | the `[task_config].includes` wiring |
+| `.github/workflows/mise.yaml` | 6 | the reusable-mise-ci stub |
 
-```sh
-mise run ci          # what CI runs: exercises the shared tasks (release:pack) as a consumer
-mise run demo:pack   # just the release:pack exercise
-```
-
-This is the validation harness for the `.github` distribution channels (mise
-tasks, CI, claude skills) at `main` — no versioning needed until it's proven.
+Nothing else — no bespoke tasks, no copied skills. It all lives in `.github`.
