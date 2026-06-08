@@ -1,0 +1,36 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+# .github-example — sandbox CONSUMER of joeblew999/.github.
+#
+# Wired to the LOCAL .github checkout via relative paths (UNVERSIONED) instead of
+# `git::…?ref=vX`. So you can edit ../.github/tasks/* and run the task HERE
+# immediately — validate the real consumer experience with no release/tag cycle.
+# Work fast, play hard. (Real consumers pin a git tag; this one tracks local edits.)
+
+[settings]
+experimental = true
+
+[task_config]
+# LOCAL, unversioned — picks up edits to ../.github instantly.
+includes = [
+  "../.github/tasks/mise.toml",
+  "../.github/tasks/cliff.toml",
+  "../.github/tasks/ci.toml",
+  "../.github/tasks/docker.toml",
+  "../.github/tasks/release.toml",
+  "../.github/tasks/rust.toml",
+]
+
+[tools]
+# Repo-specific only — global tools come from `mise run mise:global`.
+
+# A scratch task to exercise release:pack against a throwaway staging dir.
+[tasks."demo:pack"]
+description = "Make a fake staging dir + run the LOCAL release:pack to validate it"
+run = '''
+#!/usr/bin/env nu
+rm -rf target/dist
+mkdir target/dist/demo_linux_amd64
+"demo binary" | save -f target/dist/demo_linux_amd64/demo
+^mise run release:pack -- --dir target/dist
+print "→ archives:"; ls target/dist/*.tar.gz | get name
+'''
