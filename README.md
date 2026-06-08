@@ -1,12 +1,21 @@
 # .github-example
 
-> 🔗 **The lib this validates:** [joeblew999/.github](https://github.com/joeblew999/.github)
-> — the shared mise task library + claude marketplace. This repo only exists to
-> test changes to it.
+Sandbox consumer of [`joeblew999/.github`](https://github.com/joeblew999/.github)
+(the shared mise task library + Claude marketplace), wired to the **local,
+unversioned** checkout — the validation step before any release.
 
-A **sandbox consumer** of [`joeblew999/.github`](https://github.com/joeblew999/.github),
-wired to the **local, unversioned** checkout so you can develop and validate
-`.github` *fast* — no release/tag cycle.
+## Order of operations (READ FIRST)
+
+This repo is **step 2** of the .github dev cycle — always in this order:
+
+1. **Edit** `../.github` — a task in `tasks/<ns>.toml`, the `fleet` skill, or a workflow.
+2. **Validate here** (you are here): `mise run <task>` — it uses the local,
+   unversioned `../.github`, so edits are picked up instantly. **No release needed.**
+3. **Release** in `../.github` once it works: `mise run release:github -- vX.Y.Z`.
+4. **Consumers adopt** by bumping their `?ref=` / `@ref` / plugin version.
+
+Requires `.github` checked out as a **sibling** dir (`joeblew999/.github` next to
+`joeblew999/.github-example`).
 
 ## Why
 
