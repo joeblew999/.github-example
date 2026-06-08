@@ -1,5 +1,9 @@
 # .github-example
 
+> 🔗 **The lib this validates:** [joeblew999/.github](https://github.com/joeblew999/.github)
+> — the shared mise task library + claude marketplace. This repo only exists to
+> test changes to it.
+
 A **sandbox consumer** of [`joeblew999/.github`](https://github.com/joeblew999/.github),
 wired to the **local, unversioned** checkout so you can develop and validate
 `.github` *fast* — no release/tag cycle.
