@@ -1,36 +1,44 @@
 #:schema https://mise.jdx.dev/schema/mise.json
 # .github-example — sandbox CONSUMER of joeblew999/.github.
 #
-# Wired to the LOCAL .github checkout via relative paths (UNVERSIONED) instead of
-# `git::…?ref=vX`. So you can edit ../.github/tasks/* and run the task HERE
-# immediately — validate the real consumer experience with no release/tag cycle.
-# Work fast, play hard. (Real consumers pin a git tag; this one tracks local edits.)
+# Consumes .github at `?ref=main` — UNVERSIONED (rolling latest, NOT a pinned
+# tag). So you validate the newest .github with no release/tag cycle: push
+# .github main, then run a task here (local) AND let CI run it (the proper
+# reusable workflow). Real repos pin `?ref=vX`; this one tracks `main` to test it.
 
 [settings]
 experimental = true
 
 [task_config]
-# LOCAL, unversioned — picks up edits to ../.github instantly.
 includes = [
-  "../.github/tasks/mise.toml",
-  "../.github/tasks/cliff.toml",
-  "../.github/tasks/ci.toml",
-  "../.github/tasks/docker.toml",
-  "../.github/tasks/release.toml",
-  "../.github/tasks/rust.toml",
+  "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/release.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/cliff.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/docker.toml?ref=main",
 ]
 
 [tools]
 # Repo-specific only — global tools come from `mise run mise:global`.
 
-# A scratch task to exercise release:pack against a throwaway staging dir.
+# The reusable CI workflow runs `mise run ci` (its default task). Here that
+# exercises the shared .github tasks as a real consumer would.
+[tasks.ci]
+description = "Validate the shared .github tasks work as a consumer"
+depends = ["demo:pack"]
+run = '''
+#!/usr/bin/env nu
+print "✓ .github@main validated as a consumer (release:pack ran)"
+'''
+
+# Make a throwaway staging dir + run the shared release:pack against it.
 [tasks."demo:pack"]
-description = "Make a fake staging dir + run the LOCAL release:pack to validate it"
+description = "Exercise the shared release:pack end-to-end"
 run = '''
 #!/usr/bin/env nu
 rm -rf target/dist
 mkdir target/dist/demo_linux_amd64
 "demo binary" | save -f target/dist/demo_linux_amd64/demo
 ^mise run release:pack -- --dir target/dist
-print "→ archives:"; ls target/dist/*.tar.gz | get name
+print "→ archives:"; for a in (glob target/dist/*.tar.gz) { print $"  ($a)" }
 '''
