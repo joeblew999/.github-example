@@ -19,8 +19,10 @@ of the latest `.github`. Real repos pin a tag (`?ref=vX` / `@vX`).
    need, pinned `?ref=vX` (this example uses `main`). One `git::` URL per namespace.
 4. **Global tools** — `mise run mise:global` (once per machine).
 5. **Rust?** — pin it in `rust-toolchain.toml` (rustup), **never** in mise.
-6. **Wire CI** — add `.github/workflows/mise.yaml` → `uses: …/reusable-mise-ci.yml@vX`
-   with `{ task: <your task> }`. The fleet's only CI mechanism.
+6. **Wire CI** — **bootstrap:** *Actions → New workflow → "mise CI (joeblew999)"*
+   (the org workflow-template) — one click writes `.github/workflows/mise.yaml`.
+   **Update:** the scheduled `mise-upgrade` PR bumps its `@ref`. (This repo's
+   `mise.yaml` is that stub.)
 
 Then `mise run <task>` works locally and CI runs the same task.
 
