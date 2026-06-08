@@ -15,3 +15,14 @@ includes = [
 [tools]
 # Repo-specific tools only — global tools come from `mise run mise:global:bootstrap`.
 # (Rust, if any, is pinned in rust-toolchain.toml — never here.)
+
+# This repo's OWN CI work. `ci` from .github is the guard floor; a local `ci`
+# that depends on our task MERGES with it, so `mise run ci` runs guards + this.
+[tasks.ci]
+depends = ["test"]
+
+[tasks.test]
+run = '''
+#!/usr/bin/env nu
+print $"✓ example test — running on ($nu.os-info.name)"
+'''
