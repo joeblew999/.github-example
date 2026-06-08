@@ -9,8 +9,11 @@ unversioned** checkout — the validation step before any release.
 This repo is **step 2** of the .github dev cycle — always in this order:
 
 1. **Edit** `../.github` — a task in `tasks/<ns>.toml`, the `fleet` skill, or a workflow.
-2. **Validate here** (you are here): `mise run <task>` — it uses the local,
-   unversioned `../.github`, so edits are picked up instantly. **No release needed.**
+2. **Validate here — local AND CI** (you are here):
+   *local* = `mise run <task>` (uses local `../.github`, instant);
+   *CI* = `validate.yml` checks out `.github` as a sibling on a runner and runs the
+   same tasks — so it works on a clean machine too, not just yours.
+   Both must be green. **No release while iterating.**
 3. **Release** in `../.github` once it works: `mise run release:github -- vX.Y.Z`.
 4. **Consumers adopt** by bumping their `?ref=` / `@ref` / plugin version.
 
