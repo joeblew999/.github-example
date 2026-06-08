@@ -21,8 +21,12 @@ includes = [
 [tasks.ci]
 depends = ["test"]
 
+# Also proves per-task `tools = {}` auto-install: yq is NOT in the global toolset,
+# so mise must install it for THIS task (and only this task) on every OS.
 [tasks.test]
+tools = { yq = "latest" }
 run = '''
 #!/usr/bin/env nu
-print $"✓ example test — running on ($nu.os-info.name)"
+let yqv = (^yq --version)
+print $"✓ example test — ($nu.os-info.name); per-task yq auto-installed: ($yqv)"
 '''
