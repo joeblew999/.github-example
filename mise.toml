@@ -6,9 +6,6 @@
 # truth. Pinned to `main` (rolling/unversioned) so it validates the latest
 # .github with no release; real repos pin a tag (`?ref=vX`).
 
-[settings]
-experimental = true
-
 [task_config]
 includes = [
   "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=main",
@@ -16,5 +13,5 @@ includes = [
 ]
 
 [tools]
-# Repo-specific tools only — global tools come from `mise run mise:global`.
+# Repo-specific tools only — global tools come from `mise run mise:global:bootstrap`.
 # (Rust, if any, is pinned in rust-toolchain.toml — never here.)
