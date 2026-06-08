@@ -1,5 +1,7 @@
 # .github-example
 
+https://github.com/joeblew999/.github-example
+
 A working consumer of **[joeblew999/.github](https://github.com/joeblew999/.github)**.
 
 Everything — the flows, the conventions, how to bootstrap a new repo — lives in
