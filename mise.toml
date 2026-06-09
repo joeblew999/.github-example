@@ -19,6 +19,13 @@ includes = [
 # Rust is owned by rust-toolchain.toml (rustup), NEVER here — `ci:check-global`
 # enforces it. The `rust:*` tasks (from tool-rust.toml) just call cargo.
 
+[env]
+# Control WHERE `docker:build` runs — independent local/remote, the full 2x2:
+#   auto (default) = build both local + remote   |   ci = remote only (local skips)
+#   local = local only (remote skips)            |   never = neither
+# (On top of this, it still skips wherever docker can't build a linux image.)
+DOCKER_BUILD = "auto"
+
 # This repo's OWN CI work. `ci` from .github is the guard floor; a local `ci`
 # that depends on our tasks MERGES with it, so `mise run ci` runs guards + these.
 # `rust:test` (cargo test --all-targets) compiles + runs a REAL toolchain on
