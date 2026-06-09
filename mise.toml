@@ -19,19 +19,16 @@ includes = [
 # Rust is owned by rust-toolchain.toml (rustup), NEVER here — `ci:check-global`
 # enforces it. The `rust:*` tasks (from tool-rust.toml) just call cargo.
 
-[env]
-# Control WHERE `docker:build` runs — independent local/remote, the full 2x2:
-#   auto (default) = build both local + remote   |   ci = remote only (local skips)
-#   local = local only (remote skips)            |   never = neither
-# (On top of this, it still skips wherever docker can't build a linux image.)
-DOCKER_BUILD = "auto"
-
-# This repo's OWN CI work. `ci` from .github is the guard floor; a local `ci`
-# that depends on our tasks MERGES with it, so `mise run ci` runs guards + these.
-# `rust:test` (cargo test --all-targets) compiles + runs a REAL toolchain on
-# every OS. `docker:build` builds the Dockerfile where docker is usable (the Linux
-# matrix cell + local Docker Desktop) and skips cleanly elsewhere — so this ONE
-# `ci` task is the proof CI works locally AND on the matrix: nu + Rust + Docker.
+# ── THE control panel ─────────────────────────────────────────────────────────
+# `depends` is the ONE lever: it lists what `mise run ci` verifies — the SAME on
+# your machine and on the GitHub matrix. Add a task → it's built/checked; remove
+# it → it isn't. Each task self-skips where it can't run (docker on a Mac runner,
+# etc.), so the list stays green on every OS without any extra knobs.
+#   test       — this repo's nushell smoke check
+#   rust:test  — cargo test (compiles the binary for THIS OS)
+#   docker:build — builds the Dockerfile where a linux daemon exists, else skips
+# (Publishing real binaries/images is a SEPARATE opt-in: `mise run
+#  mise:repo:bootstrap --release`, which runs on a git tag — not on every push.)
 [tasks.ci]
 depends = ["test", "rust:test", "docker:build"]
 
