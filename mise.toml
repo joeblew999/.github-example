@@ -21,12 +21,26 @@ includes = [
 [tasks.ci]
 depends = ["test"]
 
-# Also proves per-task `tools = {}` auto-install: yq is NOT in the global toolset,
-# so mise must install it for THIS task (and only this task) on every OS.
+# Proves TWO mechanisms the .github tasks rely on, isomorphically on every OS:
+#   1. per-task `tools = {}` auto-install — yq is NOT in the global toolset.
+#   2. orchestration→primitive composition via `mise run` stdout capture — the
+#      exact pattern cf/provision use (provision:* capture cf:* output).
 [tasks.test]
 tools = { yq = "latest" }
 run = '''
 #!/usr/bin/env nu
-let yqv = (^yq --version)
-print $"✓ example test — ($nu.os-info.name); per-task yq auto-installed: ($yqv)"
+let yqv = (^yq --version | str trim)
+let composed = (^mise run compose-probe | complete | get stdout | str trim)
+if $composed != "COMPOSED-OK" {
+  print --stderr $"✗ mise-run composition broken — captured [($composed)]"
+  exit 1
+}
+print $"✓ example test — ($nu.os-info.name); per-task yq ok; compose via mise run = ($composed)"
+'''
+
+# A trivial PRIMITIVE the test composes — same mise-run capture pattern as provision:*→cf:*.
+[tasks.compose-probe]
+run = '''
+#!/usr/bin/env nu
+print "COMPOSED-OK"
 '''
