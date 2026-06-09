@@ -1,0 +1,5 @@
+# Rust is owned by rustup via THIS file — never mise (mise would export
+# RUSTUP_TOOLCHAIN and override it). GitHub runners ship rustup; this pins the
+# channel they use. `ci:check-global` enforces that rust stays out of [tools].
+[toolchain]
+channel = "stable"

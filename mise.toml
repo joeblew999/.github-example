@@ -10,16 +10,20 @@
 includes = [
   "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=main",
   "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/tool-rust.toml?ref=main",
 ]
 
 [tools]
 # Repo-specific tools only — global tools come from `mise run mise:global:bootstrap`.
-# (Rust, if any, is pinned in rust-toolchain.toml — never here.)
+# Rust is owned by rust-toolchain.toml (rustup), NEVER here — `ci:check-global`
+# enforces it. The `rust:*` tasks (from tool-rust.toml) just call cargo.
 
 # This repo's OWN CI work. `ci` from .github is the guard floor; a local `ci`
-# that depends on our task MERGES with it, so `mise run ci` runs guards + this.
+# that depends on our tasks MERGES with it, so `mise run ci` runs guards + these.
+# `rust:test` (cargo test --all-targets) compiles + runs a REAL toolchain on
+# every OS — the proof that CI works locally AND on the matrix, not just nu tasks.
 [tasks.ci]
-depends = ["test"]
+depends = ["test", "rust:test"]
 
 # Proves TWO mechanisms the .github tasks rely on, isomorphically on every OS:
 #   1. per-task `tools = {}` auto-install — yq is NOT in the global toolset.
