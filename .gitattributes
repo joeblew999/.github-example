@@ -1,0 +1,7 @@
+# Pin LF for generated/text files so the bootstrap drift-check in `ci` compares
+# identically on Windows (the bootstrap task writes LF; without this, a CRLF
+# checkout would read as drift).
+*.yml  text eol=lf
+*.toml text eol=lf
+*.rs   text eol=lf
+Dockerfile text eol=lf

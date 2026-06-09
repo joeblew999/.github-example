@@ -24,13 +24,36 @@ includes = [
 # your machine and on the GitHub matrix. Add a task → it's built/checked; remove
 # it → it isn't. Each task self-skips where it can't run (docker on a Mac runner,
 # etc.), so the list stays green on every OS without any extra knobs.
+#   bootstrap-check — re-runs `mise:repo:bootstrap` + fails if the generated CI
+#                     workflows drifted (exercises the FULL onboarding flow)
 #   test       — this repo's nushell smoke check
 #   rust:test  — cargo test (compiles the binary for THIS OS)
 #   docker:build — builds the Dockerfile where a linux daemon exists, else skips
 # (Publishing real binaries/images is a SEPARATE opt-in: `mise run
 #  mise:repo:bootstrap --release`, which runs on a git tag — not on every push.)
 [tasks.ci]
-depends = ["test", "rust:test", "docker:build"]
+depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
+
+# Exercise the FULL onboarding flow on every `ci` (local AND matrix): regenerate
+# the workflow stubs from the shared `mise:repo:bootstrap` and FAIL if they drift
+# from what's committed. This keeps the example a TRUE reference — its generated CI
+# can never go stale vs the current bootstrap task, and bootstrap itself is tested
+# on every push, not just when someone remembers. (.gitattributes pins eol=lf so
+# the git compare is identical on Windows.)
+[tasks.bootstrap-check]
+run = '''
+#!/usr/bin/env nu
+def main [] {
+  ^mise run mise:repo:bootstrap
+  let dirty = (^git status --porcelain .github/workflows | str trim)
+  if ($dirty | is-not-empty) {
+    print --stderr "✗ .github/workflows/ drifted from `mise run mise:repo:bootstrap` — re-bootstrap and commit:"
+    ^git --no-pager diff -- .github/workflows
+    exit 1
+  }
+  print "✓ workflows in sync with mise:repo:bootstrap"
+}
+'''
 
 # Proves TWO mechanisms the .github tasks rely on, isomorphically on every OS:
 #   1. per-task `tools = {}` auto-install — yq is NOT in the global toolset.
