@@ -1,10 +1,16 @@
 #:schema https://mise.jdx.dev/schema/mise.json
-# .github-example — a MINIMAL, canonical consumer of joeblew999/.github.
+# .github-example — the canonical consumer of joeblew999/.github, exercising the
+# FULL feature set so every capability stays CI-tested (it's the proof, not a
+# starter template). It only WIRES UP .github; it invents nothing.
 #
-# It only WIRES UP .github; it invents nothing. Tasks come from the includes,
-# skills come from the .github marketplace — .github is the single source of
-# truth. Pinned to `main` (rolling/unversioned) so it validates the latest
-# .github with no release; real repos pin a tag (`?ref=vX`).
+# ► A REAL repo takes only the SUBSET it needs. The bare minimum is two includes
+#   (mise.toml + ci.toml) and `[tasks.ci].depends = [...]`. Everything below —
+#   tool-rust/tool-docker/release includes, the CI_*/DOCKER_* [env], dist/run-bin/
+#   run-image — is OPT-IN per feature (Rust build, docker, binary/image publish).
+#   Copy a line only if you want that feature.
+#
+# Pinned to `main` (rolling) so it validates the latest .github; real repos pin a
+# tag (`?ref=vX`). Skills come from the .github marketplace.
 
 [task_config]
 includes = [
