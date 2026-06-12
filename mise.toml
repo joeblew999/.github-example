@@ -20,19 +20,28 @@ includes = [
 # enforces it. The `rust:*` tasks (from tool-rust.toml) just call cargo.
 
 # ── THE control panel ─────────────────────────────────────────────────────────
-# `depends` is the ONE lever: it lists what `mise run ci` verifies — the SAME on
-# your machine and on the GitHub matrix. Add a task → it's built/checked; remove
-# it → it isn't. Each task self-skips where it can't run (docker on a Mac runner,
-# etc.), so the list stays green on every OS without any extra knobs.
+# `depends` is the lever: it lists what `mise run ci` runs — the SAME single
+# command on your machine and on the GitHub matrix. Add a task → it runs; remove
+# it → it doesn't. Each task self-skips where it can't run (docker on a Mac runner,
+# etc.), so the list stays green on every OS.
 #   bootstrap-check — re-runs `mise:repo:bootstrap` + fails if the generated CI
 #                     workflows drifted (exercises the FULL onboarding flow)
 #   test       — this repo's nushell smoke check
-#   rust:test  — cargo test (compiles the binary for THIS OS)
+#   rust:test  — cargo test (compiles the binary for THIS OS — so the matrix
+#                builds linux+macOS+windows binaries; `--os-matrix` at bootstrap
+#                picks which OSes)
 #   docker:build — builds the Dockerfile where a linux daemon exists, else skips
 # (Publishing real binaries/images is a SEPARATE opt-in: `mise run
 #  mise:repo:bootstrap --release`, which runs on a git tag — not on every push.)
 [tasks.ci]
 depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
+
+# Optional: control WHERE docker:build runs. Default (unset) = build wherever a
+# linux daemon exists (here: local Docker Desktop + the ubuntu matrix cell). The
+# single `mise run ci` command is unchanged either way — only this value moves.
+#   [env]
+#   DOCKER_BUILD = "ci"      # remote-only (local `mise run ci` skips docker)
+#   # also: "local" (local-only) · "never" · "auto" (default)
 
 # Exercise the FULL onboarding flow on every `ci` (local AND matrix): regenerate
 # the workflow stubs from the shared `mise:repo:bootstrap` and FAIL if they drift
