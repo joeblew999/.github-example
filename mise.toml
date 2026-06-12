@@ -43,7 +43,28 @@ depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
 # `mise run mise:repo:bootstrap`; your override persists.
 [env]
 CI_OS_MATRIX = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes the matrix runs
+CI_RELEASE   = "true"   # on a git TAG, build per-OS binaries + publish a Release
 # DOCKER_BUILD = "ci"   # optional: docker remote-only (default = wherever capable)
+
+# `dist` is the build-task the release workflow runs on each OS (reusable default
+# name). It builds the release binary and stages it as the layout `release:pack`
+# expects — `dist/<name>_<ver>_<os>_<arch>/<bin>` — one tar.gz per dir. This is what
+# CI_RELEASE = true exercises: a real multi-OS publish, proven, not just documented.
+[tasks.dist]
+run = '''
+#!/usr/bin/env nu
+def main [] {
+  ^cargo build --release
+  let ver  = "0.1.0"
+  let os   = $nu.os-info.name                                   # linux | macos | windows
+  let arch = $nu.os-info.arch                                   # x86_64 | aarch64
+  let bin  = (if $os == "windows" { "hello.exe" } else { "hello" })
+  let d    = $"dist/hello_($ver)_($os)_($arch)"
+  mkdir $d
+  cp ($"target/release/($bin)") ($d | path join $bin)
+  print $"✓ staged ($d)/($bin)"
+}
+'''
 
 # Exercise the FULL onboarding flow on every `ci` (local AND matrix): regenerate
 # the workflow stubs from the shared `mise:repo:bootstrap` and FAIL if they drift
