@@ -8,10 +8,10 @@ on:
 
 jobs:
   release:
-    # REQUIRED — a reusable workflow can't elevate the default read-only
-    # GITHUB_TOKEN; without this the publish job startup_failures.
     permissions:
       contents: write
+      packages: write
     uses: joeblew999/.github/.github/workflows/reusable-mise-release.yml@main
     with:
       os-matrix: '["ubuntu-latest", "macos-latest", "windows-latest"]'
+      docker-image: true
