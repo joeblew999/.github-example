@@ -43,8 +43,9 @@ depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
 # override is reproduced on re-bootstrap — not clobbered. Change a value here, then
 # `mise run mise:repo:bootstrap`; your override persists.
 [env]
-CI_OS_MATRIX = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes the matrix runs
-CI_RELEASE   = "true"   # on a git TAG, build per-OS binaries + publish a Release
+CI_OS_MATRIX         = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes CI runs
+CI_RELEASE           = "true"                                                  # publish binaries on a git TAG
+CI_RELEASE_OS_MATRIX = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes publish (default: ubuntu+macos)
 # DOCKER_BUILD = "ci"   # optional: docker remote-only (default = wherever capable)
 
 # `dist` is the build-task the release workflow runs on each OS (reusable default
