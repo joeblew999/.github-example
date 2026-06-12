@@ -116,3 +116,40 @@ run = '''
 #!/usr/bin/env nu
 print "COMPOSED-OK"
 '''
+
+# ── Run what this repo PUBLISHES ──────────────────────────────────────────────
+# A dev who cloned this can run the published artifacts directly via mise.
+
+# Download + run the published BINARY for THIS OS/arch (release assets are public).
+#   mise run run-bin              # latest release
+#   mise run run-bin -- v0.5.0    # a specific tag
+[tasks.run-bin]
+run = '''
+#!/usr/bin/env nu
+def main [tag?: string] {
+  let t    = ($tag | default (^gh release view --json tagName | from json | get tagName))
+  let os   = $nu.os-info.name
+  let arch = $nu.os-info.arch
+  let dir  = (mktemp -d)
+  ^gh release download $t --pattern $"hello_*_($os)_($arch).tar.gz" --dir $dir --clobber
+  let tgz = (ls $dir | where name =~ 'tar.gz' | get 0.name)
+  ^tar -xzf $tgz -C $dir
+  let bin = ($dir | path join (if $os == "windows" { "hello.exe" } else { "hello" }))
+  print $"→ running the ($t) binary for ($os)/($arch):"
+  ^$bin
+  rm -rf $dir
+}
+'''
+
+# Pull + run the published DOCKER image. It's PRIVATE, so provide GHCR creds —
+# easiest via fnox:
+#   fnox exec -- mise run run-image           # latest release
+#   fnox exec -- mise run run-image -- v0.5.0
+[tasks.run-image]
+run = '''
+#!/usr/bin/env nu
+def main [tag?: string] {
+  let t = ($tag | default (^gh release view --json tagName | from json | get tagName))
+  ^mise run docker:pull -- $t --run
+}
+'''
