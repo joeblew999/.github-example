@@ -12,6 +12,7 @@ includes = [
   "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=main",
   "git::https://github.com/joeblew999/.github.git//tasks/tool-rust.toml?ref=main",
   "git::https://github.com/joeblew999/.github.git//tasks/tool-docker.toml?ref=main",
+  "git::https://github.com/joeblew999/.github.git//tasks/release.toml?ref=main",   # release:pack/publish (used by the release workflow)
 ]
 
 [tools]
