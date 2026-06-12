@@ -36,12 +36,14 @@ includes = [
 [tasks.ci]
 depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
 
-# Optional: control WHERE docker:build runs. Default (unset) = build wherever a
-# linux daemon exists (here: local Docker Desktop + the ubuntu matrix cell). The
-# single `mise run ci` command is unchanged either way — only this value moves.
-#   [env]
-#   DOCKER_BUILD = "ci"      # remote-only (local `mise run ci` skips docker)
-#   # also: "local" (local-only) · "never" · "auto" (default)
+# ── Tuning lives HERE, and survives re-bootstrap ──────────────────────────────
+# bootstrap READS [env] and PROJECTS it into .github/workflows/ (it never writes
+# mise.toml). We set CI_OS_MATRIX explicitly so `bootstrap-check` proves a workflow
+# override is reproduced on re-bootstrap — not clobbered. Change a value here, then
+# `mise run mise:repo:bootstrap`; your override persists.
+[env]
+CI_OS_MATRIX = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes the matrix runs
+# DOCKER_BUILD = "ci"   # optional: docker remote-only (default = wherever capable)
 
 # Exercise the FULL onboarding flow on every `ci` (local AND matrix): regenerate
 # the workflow stubs from the shared `mise:repo:bootstrap` and FAIL if they drift
