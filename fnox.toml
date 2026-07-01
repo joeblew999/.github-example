@@ -1,0 +1,13 @@
+# Secrets contract for this repo (per-repo fnox.toml is the contract). Values live
+# in the keychain; this file only maps names → provider keys, so it's safe to commit.
+#
+# GHCR_TOKEN drives docker:pull / run-image for PRIVATE images:
+#   fnox exec -- mise run run-image
+# It reuses the keychain item GITHUB_TOKEN (a PAT with read:packages). GHCR_USER is
+# the public username — it lives in mise.toml [env], not here.
+[providers.keychain]
+type = "keychain"
+service = "fnox"
+
+[secrets]
+GHCR_TOKEN = { provider = "keychain", value = "GITHUB_TOKEN" }

@@ -56,6 +56,7 @@ CI_DOCKER_IMAGE      = "true"                                                  #
 CI_DOCKERFILE        = ".docker/Dockerfile"                                    # which Dockerfile (default: ./Dockerfile)
 CI_DOCKER_CONTEXT    = "."                                                     # build context (default: .)
 CI_DOCKER_PLATFORMS  = "linux/amd64,linux/arm64"                               # native multi-arch (default: linux/amd64)
+GHCR_USER            = "joeblew999"                                            # public username; GHCR_TOKEN comes from fnox.toml
 # DOCKER_BUILD = "ci"   # optional: docker remote-only (default = wherever capable)
 
 # `dist` is the build-task the release workflow runs on each OS (reusable default
