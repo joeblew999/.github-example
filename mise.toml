@@ -14,11 +14,11 @@
 
 [task_config]
 includes = [
-  "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/tool-rust.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/tool-docker.toml?ref=main",
-  "git::https://github.com/joeblew999/.github.git//tasks/release.toml?ref=main",   # release:pack/publish (used by the release workflow)
+  "git::https://github.com/joeblew999/.github.git//tasks/mise.toml?ref={{env.GITHUB_REF}}",
+  "git::https://github.com/joeblew999/.github.git//tasks/ci.toml?ref={{env.GITHUB_REF}}",
+  "git::https://github.com/joeblew999/.github.git//tasks/tool-rust.toml?ref={{env.GITHUB_REF}}",
+  "git::https://github.com/joeblew999/.github.git//tasks/tool-docker.toml?ref={{env.GITHUB_REF}}",
+  "git::https://github.com/joeblew999/.github.git//tasks/release.toml?ref={{env.GITHUB_REF}}",   # release:pack/publish (used by the release workflow)
 ]
 
 [tools]
@@ -49,6 +49,7 @@ depends = ["bootstrap-check", "test", "rust:test", "docker:build"]
 # override is reproduced on re-bootstrap — not clobbered. Change a value here, then
 # `mise run mise:repo:bootstrap`; your override persists.
 [env]
+GITHUB_REF           = "main"                                                  # one-ref pattern — the fleet-version knob every include reads
 CI_OS_MATRIX         = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes CI runs
 CI_RELEASE           = "true"                                                  # publish binaries on a git TAG
 CI_RELEASE_OS_MATRIX = '["ubuntu-latest", "macos-latest", "windows-latest"]'   # which OSes publish (default: ubuntu+macos)
